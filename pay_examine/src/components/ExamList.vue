@@ -1,13 +1,13 @@
 <template>
   <div class="listData">
     <el-form :inline="true" :model="formInline" class="demo-form-inline">
-      <el-form-item label="姓名">
-        <el-input v-model="formInline.user" placeholder="姓名"></el-input>
+      <el-form-item label="用户姓名 ">
+        <el-input v-model="formInline.user" placeholder="用户姓名"></el-input>
       </el-form-item>
       <el-form-item label="用户类型">
         <el-select v-model="formInline.region" placeholder="用户类型">
-          <el-option label="区域一" value="shanghai"></el-option>
-          <el-option label="区域二" value="beijing"></el-option>
+          <el-option label="已认证" value="1"></el-option>
+          <el-option label="未认证" value="0"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -24,7 +24,7 @@
         width="180">
       </el-table-column>
       <el-table-column
-        label="实名认证"
+        label="学习进度"
         width="80">
         <template slot-scope="scope">
           <span class="examine" style="background-color:#909399;" v-if="scope.row.realAthenNameSign === 0">审核中</span>
@@ -35,10 +35,6 @@
       <el-table-column
         prop="roleDes"
         label="用户类型">
-      </el-table-column>
-      <el-table-column
-        prop="disableUrl"
-        label="证件地址">
       </el-table-column>
       <el-table-column
         prop="emerContact"
@@ -63,7 +59,7 @@
         prop="step"
         label="认证进度">
       </el-table-column>
-      <el-table-column label="操作" width="250">
+      <el-table-column label="操作" width="350">
         <template slot-scope="scope">
           <el-button
             size="medium"
@@ -75,9 +71,23 @@
             type="danger"
             @click="handleDelete(scope.$index, scope.row)">不通过
           </el-button>
+          <el-button @click="drawer = true" type="primary" style="margin-left: 16px;">
+            查看证件照
+          </el-button>
         </template>
+
       </el-table-column>
     </el-table>
+    <el-drawer
+      title="我是标题"
+      :visible.sync="drawer"
+      direction="ltr"
+      :with-header="false">
+      <div>
+        <img style="height: 30%" src="https://oss-jz.oss-cn-beijing.aliyuncs.com/bn2c/video/h5img/h5img1/70.jpg">
+        <img style="height: 30%" src="https://oss-jz.oss-cn-beijing.aliyuncs.com/bn2c/video/h5img/h5img1/70.jpg">
+      </div>
+    </el-drawer>
   </div>
 </template>
 
@@ -105,7 +115,8 @@
       },
       onSubmit() {
         console.log(this.formInline.user);
-      }
+      },
+
     },
     data(){
       return {
@@ -113,7 +124,8 @@
         formInline: {
           user: '',
           region: ''
-        }
+        },
+        drawer: false,
       }
     }
   }
