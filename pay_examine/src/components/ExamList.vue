@@ -114,7 +114,7 @@
                   type="danger"
                   @click="handleDelete(scope.$index, scope.row)">不通过
                 </el-button>
-                <el-button @click="drawer = true" type="primary" style="margin-left: 16px;">
+                <el-button @click="handleDrawerOpen(scope.row.userId)" type="primary" style="margin-left: 16px;">
                   查看
                 </el-button>
               </template>
@@ -137,10 +137,14 @@
             title="我是标题"
             :visible.sync="drawer"
             direction="ltr"
+            :before-close="handleDrawerClose"
             :with-header="false">
-            <div>
-              <img style="height: 30%" src="https://oss-jz.oss-cn-beijing.aliyuncs.com/bn2c/video/h5img/h5img1/70.jpg">
-              <img style="height: 30%" src="https://oss-jz.oss-cn-beijing.aliyuncs.com/bn2c/video/h5img/h5img1/70.jpg">
+            <div class="warp-drawer">
+              <p class="content" style="height: 20px">证件照片</p>
+              <img width="420px"  v-for="(item,index) in pciList1" :src="'https://oss-jz.oss-cn-beijing.aliyuncs.com/'+item" :key="index">
+              <div v-show="pciList1.length===0">
+                    <p>sljdfajsdkfas</p>
+              </div>
             </div>
           </el-drawer>
         </el-main>
@@ -153,10 +157,13 @@
   export default {
     name: "ExamList",
     mounted() {
-      this.$api.get('/sign_technology/examAuthInfo', {}, response => {
+      let parms = {name: this.formInline.name, userType: this.formInline.userType, exam: this.formInline.exam}
+      this.$api.get('/sign_technology/examAuthInfo', parms, response => {
         if (response.status >= 0 && response.status < 300) {
           console.log(response.data.data);//请求成功，response为成功信息参数
-          this.examAuthList = response.data.data;
+          this.examAuthList = response.data.data.data;
+          this.pagesize = response.data.data.pageSize;
+          this.total = response.data.data.totalCount;
         } else {
           console.log(response.message);//请求失败，response为失败信息
         }
@@ -177,7 +184,7 @@
         this.$api.get('/sign_technology/examAuthInfo', parms, response => {
           if (response.status >= 0 && response.status < 300) {
             console.log(response.data.data);//请求成功，response为成功信息参数
-            this.examAuthList = response.data.data;
+            this.examAuthList = response.data.data.data;
           } else {
             console.log(response.message);//请求失败，response为失败信息
           }
@@ -188,21 +195,37 @@
         console.log(`每页size------ ${val} 条`);
       },
       handleCurrentChange(val) {
-        console.log(`当前页 前后: ${val}`);
         let params = {
           name: this.formInline.name,
           userType: this.formInline.userType,
           exam: this.formInline.exam,
-          pageNum: val
+          pageNum: val,
+          pageSize: 5
         };
+        console.log(`当前页 前后: ${JSON.stringify(params)}`);
         this.$api.get('/sign_technology/examAuthInfo', params, response => {
           if (response.status >= 0 && response.status < 300) {
             console.log(response.data.data);//请求成功，response为成功信息参数
-            this.examAuthList = response.data.data;
+            this.examAuthList = response.data.data.data;
           } else {
             console.log(response.message);//请求失败，response为失败信息
           }
         });
+      },
+      //抽屉
+      handleDrawerOpen(param) {
+        this.$api.get('/sign_technology/getCertifPic', {userId: param}, response => {
+          if (response.status >= 0 && response.status < 300) {
+            console.log(response.data.data);//请求成功，response为成功信息参数
+            this.pciList1 = response.data.data;
+          } else {
+            console.log(response.message);//请求失败，response为失败信息
+          }
+        })
+        this.drawer = true;
+      },
+      handleDrawerClose(done) {
+        done()
       }
 
     },
@@ -215,13 +238,15 @@
           userType: '',
           exam: ''
         },
-        //查看证件照
+        //抽屉默认隐藏
         drawer: false,
         //分页
         currentPage3: 1,//当前页
         pageSize: 5,//每页条数
-        total:20//总记录数
-
+        total: 0,//总记录数
+        //图片地址
+        // pciList1:['https://oss-jz.oss-cn-beijing.aliyuncs.com/001845.122b80e212684fd3b942b1d5c92d13f4.0553/Certificates_file/0/front','https://oss-jz.oss-cn-beijing.aliyuncs.com/001845.122b80e212684fd3b942b1d5c92d13f4.0553/Certificates_file/0/front','https://oss-jz.oss-cn-beijing.aliyuncs.com/001845.122b80e212684fd3b942b1d5c92d13f4.0553/Certificates_file/0/front']
+        pciList1:[]
       }
     }
   }
@@ -255,9 +280,13 @@
     padding-top: 20px;
   }
 
+  .warp-drawer .content {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 20px 0;
+  }
 
-  /*.el-container:nth-child(7) .el-aside {*/
-  /*  line-height: 320px;*/
-  /*}*/
-
+  .el-drawer {
+    overflow-y: scroll;
+  }
 </style>
