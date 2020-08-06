@@ -141,10 +141,8 @@
             :with-header="false">
             <div class="warp-drawer">
               <p class="content" style="height: 20px">证件照片</p>
-              <div>
-                <img width="420px" v-for="(item,index) in pciList1" :src="'https://oss-jz.oss-cn-beijing.aliyuncs.com/'+item" :key="index">
-                <p v-else-if="this.pciList1.length===0">lck</p>
-              </div>
+                <img width="420px" v-for="(item,index) in pciList" :src="'https://oss-jz.oss-cn-beijing.aliyuncs.com/'+item" :key="index" v-if="pciList">
+                <p v-else>lck</p>
             </div>
           </el-drawer>
         </el-main>
@@ -217,7 +215,7 @@
         this.$api.get('/sign_technology/getCertifPic', {userId: param}, response => {
           if (response.status >= 0 && response.status < 300) {
             console.log(response.data.data);//请求成功，response为成功信息参数
-            this.pciList1 = response.data.data;
+            this.pciList = response.data.data;
           } else {
             console.log(response.message);//请求失败，response为失败信息
           }
@@ -245,8 +243,8 @@
         pageSize: 5,//每页条数
         total: 0,//总记录数
         //图片地址
-        // pciList1:['https://oss-jz.oss-cn-beijing.aliyuncs.com/001845.122b80e212684fd3b942b1d5c92d13f4.0553/Certificates_file/0/front','https://oss-jz.oss-cn-beijing.aliyuncs.com/001845.122b80e212684fd3b942b1d5c92d13f4.0553/Certificates_file/0/front','https://oss-jz.oss-cn-beijing.aliyuncs.com/001845.122b80e212684fd3b942b1d5c92d13f4.0553/Certificates_file/0/front']
-        pciList1:[]
+        // pciList:['https://oss-jz.oss-cn-beijing.aliyuncs.com/001845.122b80e212684fd3b942b1d5c92d13f4.0553/Certificates_file/0/front','https://oss-jz.oss-cn-beijing.aliyuncs.com/001845.122b80e212684fd3b942b1d5c92d13f4.0553/Certificates_file/0/front','https://oss-jz.oss-cn-beijing.aliyuncs.com/001845.122b80e212684fd3b942b1d5c92d13f4.0553/Certificates_file/0/front']
+        pciList:[]
       }
     }
   }
