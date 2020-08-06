@@ -141,9 +141,9 @@
             :with-header="false">
             <div class="warp-drawer">
               <p class="content" style="height: 20px">证件照片</p>
-              <img width="420px"  v-for="(item,index) in pciList1" :src="'https://oss-jz.oss-cn-beijing.aliyuncs.com/'+item" :key="index">
-              <div v-show="pciList1.length===0">
-                    <p>sljdfajsdkfas</p>
+              <div>
+                <img width="420px" v-for="(item,index) in pciList1" :src="'https://oss-jz.oss-cn-beijing.aliyuncs.com/'+item" :key="index">
+                <p v-else-if="this.pciList1.length===0">lck</p>
               </div>
             </div>
           </el-drawer>
