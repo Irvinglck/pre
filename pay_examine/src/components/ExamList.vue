@@ -50,19 +50,23 @@
             style="width: 100%"
             :row-class-name="tableRowClassName">
             <el-table-column
-              prop="name"
-              label="姓名"
-              width="180">
+              label="姓名">
+              <template slot-scope="scope">
+                <span v-if="scope.row.name">{{scope.row.name}}</span>
+                <span v-else>{{scope.row.nickName}}</span>
+              </template>
             </el-table-column>
             <el-table-column
               label="审核进度"
               width="80">
               <template slot-scope="scope">
-                <span class="examine" style="background-color:#909399;"
-                      v-if="scope.row.realAthenNameSign === 0">审核中</span>
-                <span class="examine" style="background-color:#84CE60;"
-                      v-else-if="scope.row.realAthenNameSign === 1">通过</span>
-                <span class="examine" style="background-color:red;" v-else>未通过</span>
+                <span class="examine" style="background-color:#E6A23C;"
+                      v-if="scope.row.exam === '1'">审核中</span>
+                <span class="examine" style="background-color:#F56C6C;"
+                      v-else-if="scope.row.exam === '2'">不通过</span>
+                <span class="examine" style="background-color:#67C23A;"
+                      v-else-if="scope.row.exam === '0'">通过</span>
+                <span class="examine" style="background-color:#E6A23C;" v-else>审核中</span>
               </template>
             </el-table-column>
             <el-table-column
@@ -71,13 +75,17 @@
               <template slot-scope="scope">
                 <span class="examine" style="background-color:red;"
                       v-if="scope.row.realAthenNameSign === 0">否</span>
-                <span class="examine" style="background-color:#909399;"
+                <span class="examine" style="background-color:#67C23A;"
                       v-else-if="scope.row.realAthenNameSign === 1">是</span>
               </template>
             </el-table-column>
             <el-table-column
-              prop="roleDes"
               label="用户类型">
+              width="80">
+              <template slot-scope="scope">
+                <span v-if="scope.row.roleDes === 2">志愿者</span>
+                <span v-else>残疾人</span>
+              </template>
             </el-table-column>
             <el-table-column
               prop="emerContact"
@@ -93,7 +101,7 @@
               width="200">
             </el-table-column>
             <el-table-column
-              size="mini"
+              width="150"
               prop="tel"
               label="认证手机">
             </el-table-column>
@@ -107,12 +115,12 @@
                 <el-button
                   size="medium"
                   type="success"
-                  @click="handlPass(scope.$index, scope.row)">通过
+                  @click="handlePass(scope.row)">通过
                 </el-button>
                 <el-button
                   size="medium"
                   type="danger"
-                  @click="handleDelete(scope.$index, scope.row)">不通过
+                  @click="handleDelete(scope.row)">不通过
                 </el-button>
                 <el-button @click="handleDrawerOpen(scope.row.userId)" type="primary" style="margin-left: 16px;">
                   查看
@@ -145,6 +153,24 @@
                 <p v-else>lck</p>
             </div>
           </el-drawer>
+          <!--审核不通过弹窗-->
+          <el-dialog title="收货地址" :visible.sync="dialogFormVisible">
+            <el-form :model="form">
+              <el-form-item label="活动名称" :label-width="formLabelWidth">
+                <el-input v-model="form.name" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="活动区域" :label-width="formLabelWidth">
+                <el-select v-model="form.region" placeholder="请选择活动区域">
+                  <el-option label="区域一" value="shanghai"></el-option>
+                  <el-option label="区域二" value="beijing"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+              <el-button @click="dialogFormVisible = false">取 消</el-button>
+              <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+            </div>
+          </el-dialog>
         </el-main>
       </el-container>
     </el-container>
@@ -224,6 +250,55 @@
       },
       handleDrawerClose(done) {
         done()
+      },
+      //审批通过
+      handlePass(row){
+        let params={userId:row.userId,userName:row.userName}
+        this.$api.post('/sign_technology/examPass', params, response => {
+          if (response.status >= 0 && response.status < 300) {
+            //数据回显
+            let parms = {name: this.formInline.name, userType: this.formInline.userType, exam: this.formInline.exam}
+            this.$api.get('/sign_technology/examAuthInfo', parms, response => {
+              if (response.status >= 0 && response.status < 300) {
+                console.log(response.data.data);//请求成功，response为成功信息参数
+                this.examAuthList = response.data.data.data;
+                this.pagesize = response.data.data.pageSize;
+                this.total = response.data.data.totalCount;
+              } else {
+                console.log(response.message);//请求失败，response为失败信息
+              }
+            });
+          } else {
+            alert("审核失败")
+          }
+        })
+      },
+      //审批不通过
+      handleDelete(params){
+        this.dialogFormVisible=true;
+        console.log(JSON.stringify(params));
+        let paramsDel={userId:params.userId,disableUrl:params.disableUrl,deleteDes:params.deleteDes}
+        console.log(JSON.stringify(paramsDel));
+        this.$api.get('/sign_technology/examNOPass', paramsDel, response => {
+          if (response.status >= 0 && response.status < 300) {
+            //数据回显
+            let parms = {name: this.formInline.name, userType: this.formInline.userType, exam: this.formInline.exam}
+            this.$api.get('/sign_technology/examAuthInfo', parms, response => {
+              if (response.status >= 0 && response.status < 300) {
+                console.log(response.data.data);//请求成功，response为成功信息参数
+                this.examAuthList = response.data.data.data;
+                this.pagesize = response.data.data.pageSize;
+                this.total = response.data.data.totalCount;
+              } else {
+                console.log(response.message);//请求失败，response为失败信息
+              }
+            });
+            alert("审核成功")
+          } else {
+            alert("审核失败")
+            // console.log(response.message);//请求失败，response为失败信息
+          }
+        })
       }
 
     },
@@ -243,8 +318,20 @@
         pageSize: 5,//每页条数
         total: 0,//总记录数
         //图片地址
-        // pciList:['https://oss-jz.oss-cn-beijing.aliyuncs.com/001845.122b80e212684fd3b942b1d5c92d13f4.0553/Certificates_file/0/front','https://oss-jz.oss-cn-beijing.aliyuncs.com/001845.122b80e212684fd3b942b1d5c92d13f4.0553/Certificates_file/0/front','https://oss-jz.oss-cn-beijing.aliyuncs.com/001845.122b80e212684fd3b942b1d5c92d13f4.0553/Certificates_file/0/front']
-        pciList:[]
+        pciList:[],
+        //弹窗
+        dialogFormVisible: false,
+        form: {
+          name: '',
+          region: '',
+          date1: '',
+          date2: '',
+          delivery: false,
+          type: [],
+          resource: '',
+          desc: ''
+        },
+        formLabelWidth: '120px'
       }
     }
   }
