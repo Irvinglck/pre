@@ -35,13 +35,13 @@
             <el-form-item label="审核进度">
               <el-select v-model="formInline.exam" placeholder="审核进度">
                 <el-option label="" value=""></el-option>
-                <el-option label="通过" value="1"></el-option>
-                <el-option label="未通过" value="0"></el-option>
-                <el-option label="审核中" value="2"></el-option>
+                <el-option label="通过" value="0"></el-option>
+                <el-option label="未通过" value="2"></el-option>
+<!--                <el-option label="审核中" value="1"></el-option>-->
               </el-select>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="onSubmit">查询</el-button>
+              <el-button type="primary" @click="searchUsers">查询</el-button>
             </el-form-item>
           </el-form>
           <!--数据列表-->
@@ -149,26 +149,22 @@
             :with-header="false">
             <div class="warp-drawer">
               <p class="content" style="height: 20px">证件照片</p>
-                <img width="420px" v-for="(item,index) in pciList" :src="'https://oss-jz.oss-cn-beijing.aliyuncs.com/'+item" :key="index" v-if="pciList">
-                <p v-else>lck</p>
+              <img width="420px" v-for="(item,index) in pciList"
+                   :src="'https://oss-jz.oss-cn-beijing.aliyuncs.com/'+item" :key="index" v-if="pciList">
+              <p v-else>lck</p>
             </div>
           </el-drawer>
           <!--审核不通过弹窗-->
-          <el-dialog title="收货地址" :visible.sync="dialogFormVisible">
-            <el-form :model="form">
-              <el-form-item label="活动名称" :label-width="formLabelWidth">
-                <el-input v-model="form.name" autocomplete="off"></el-input>
-              </el-form-item>
-              <el-form-item label="活动区域" :label-width="formLabelWidth">
-                <el-select v-model="form.region" placeholder="请选择活动区域">
-                  <el-option label="区域一" value="shanghai"></el-option>
-                  <el-option label="区域二" value="beijing"></el-option>
-                </el-select>
+          <el-dialog title="审核不通过" :visible.sync="dialogFormVisible">
+            <el-form :model="failRea">
+              <el-form-item label="原因描述" :label-width="formLabelWidth">
+                <!--                <el-input v-model="failRea.reaValue" autocomplete="off"></el-input>-->
+                <el-input v-model="failRea.reaValue"></el-input>
               </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
-              <el-button @click="dialogFormVisible = false">取 消</el-button>
-              <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+              <el-button @click="cancelExam()">取 消</el-button>
+              <el-button type="primary" @click="confrimNoPassExam()">确 定</el-button>
             </div>
           </el-dialog>
         </el-main>
@@ -202,7 +198,7 @@
           return 'success-row';
         }
       },
-      onSubmit() {
+      searchUsers() {
         console.log(this.formInline.user, this.formInline.region);
         let parms = {name: this.formInline.name, userType: this.formInline.userType, exam: this.formInline.exam}
         this.$api.get('/sign_technology/examAuthInfo', parms, response => {
@@ -210,6 +206,7 @@
             console.log(response.data.data);//请求成功，response为成功信息参数
             this.examAuthList = response.data.data.data;
           } else {
+            this.open1();
             console.log(response.message);//请求失败，response为失败信息
           }
         });
@@ -251,9 +248,25 @@
       handleDrawerClose(done) {
         done()
       },
+      //提示弹窗
+      open() {
+        this.$alert('用户暂未提交审核  不可审核', '消息提示', {
+          confirmButtonText: '确定',
+        });
+      },
+      //提示弹窗
+      open1() {
+        this.$alert('暂无用户数据', '消息提示', {
+          confirmButtonText: '确定',
+        });
+      },
       //审批通过
-      handlePass(row){
-        let params={userId:row.userId,userName:row.userName}
+      handlePass(row) {
+        if (!row.step) {
+          this.open();
+          return
+        }
+        let params = {userId: row.userId, userName: row.userName}
         this.$api.post('/sign_technology/examPass', params, response => {
           if (response.status >= 0 && response.status < 300) {
             //数据回显
@@ -272,14 +285,29 @@
             alert("审核失败")
           }
         })
-      },
+
+      }
+      ,
       //审批不通过
-      handleDelete(params){
-        this.dialogFormVisible=true;
-        console.log(JSON.stringify(params));
-        let paramsDel={userId:params.userId,disableUrl:params.disableUrl,deleteDes:params.deleteDes}
-        console.log(JSON.stringify(paramsDel));
-        this.$api.get('/sign_technology/examNOPass', paramsDel, response => {
+      handleDelete(params) {
+        if (!params.step) {
+          this.open();
+          return
+        }
+        this.dialogFormVisible = true;
+        this.examNoPassParams.userId = params.userId;
+        this.examNoPassParams.disableUrl = params.disableUrl;
+      }
+      ,
+      confrimNoPassExam() {
+        let reaValue = this.failRea.reaValue;
+        let paramsDel = {
+          userId: this.examNoPassParams.userId,
+          disableUrl: this.examNoPassParams.disableUrl,
+          deleteDes: reaValue
+        }
+        this.dialogFormVisible = false;
+        this.$api.post('/sign_technology/examNOPass', paramsDel, response => {
           if (response.status >= 0 && response.status < 300) {
             //数据回显
             let parms = {name: this.formInline.name, userType: this.formInline.userType, exam: this.formInline.exam}
@@ -293,15 +321,17 @@
                 console.log(response.message);//请求失败，response为失败信息
               }
             });
-            alert("审核成功")
           } else {
             alert("审核失败")
-            // console.log(response.message);//请求失败，response为失败信息
           }
         })
       }
-
+      ,
+      cancelExam() {
+        this.dialogFormVisible = false;
+      }
     },
+
     data() {
       return {
         examAuthList: [],
@@ -318,20 +348,18 @@
         pageSize: 5,//每页条数
         total: 0,//总记录数
         //图片地址
-        pciList:[],
+        pciList: [],
         //弹窗
         dialogFormVisible: false,
-        form: {
-          name: '',
-          region: '',
-          date1: '',
-          date2: '',
-          delivery: false,
-          type: [],
-          resource: '',
-          desc: ''
+        failRea: {
+          reaValue: '',
         },
-        formLabelWidth: '120px'
+        formLabelWidth: '120px',
+        examNoPassParams: {
+          userId: '',
+          disableUrl: ''
+
+        }
       }
     }
   }
