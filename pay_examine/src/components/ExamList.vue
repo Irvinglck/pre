@@ -2,23 +2,23 @@
   <div class="listData">
     <el-header style="width: 100%; background-color: #20A0FF"></el-header>
     <el-container>
-      <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
-        <el-menu>
-          <el-menu-item index="2">
-            <i class="el-icon-menu"></i>
-            <span slot="title">用户实名审核</span>
-          </el-menu-item>
-          <el-menu-item index="3">
-            <!--          <el-menu-item index="3" disabled>-->
-            <i class="el-icon-document"></i>
-            <span slot="title">保留导航</span>
-          </el-menu-item>
-          <el-menu-item index="4">
-            <i class="el-icon-setting"></i>
-            <span slot="title">保留导航</span>
-          </el-menu-item>
-        </el-menu>
-      </el-aside>
+      <!--<el-aside width="200px" style="background-color: rgb(238, 241, 246)">-->
+        <!--<el-menu>-->
+          <!--<el-menu-item index="2">-->
+            <!--<i class="el-icon-menu"></i>-->
+            <!--<span slot="title">用户实名审核</span>-->
+          <!--</el-menu-item>-->
+          <!--<el-menu-item index="3">-->
+            <!--&lt;!&ndash;          <el-menu-item index="3" disabled>&ndash;&gt;-->
+            <!--<i class="el-icon-document"></i>-->
+            <!--<span slot="title">保留导航</span>-->
+          <!--</el-menu-item>-->
+          <!--<el-menu-item index="4">-->
+            <!--<i class="el-icon-setting"></i>-->
+            <!--<span slot="title">保留导航</span>-->
+          <!--</el-menu-item>-->
+        <!--</el-menu>-->
+      <!--</el-aside>-->
       <el-container>
         <el-main class="main-add">
           <el-form :inline="true" :model="formInline" class="demo-form-inline sl-form">

@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 let http = axios.create({
+  // baseURL: '/',
   baseURL: '/api',
   withCredentials: true,
   headers: {
