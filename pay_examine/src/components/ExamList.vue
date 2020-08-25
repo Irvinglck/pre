@@ -167,6 +167,18 @@
               <el-button type="primary" @click="confrimNoPassExam()">确 定</el-button>
             </div>
           </el-dialog>
+          <el-dialog title="审核通过" :visible.sync="dialogPassVisible">
+            <el-form :model="disableNum">
+              <el-form-item label="请录入残疾证件号码" :label-width="formLabelWidthPass">
+                <!--                <el-input v-model="failRea.reaValue" autocomplete="off"></el-input>-->
+                <el-input v-model="disableNum.numId"></el-input>
+              </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+              <el-button @click="cancelPassExam()">取 消</el-button>
+              <el-button type="primary" @click="confrimPassExam()">确 定</el-button>
+            </div>
+          </el-dialog>
         </el-main>
       </el-container>
     </el-container>
@@ -260,13 +272,11 @@
           confirmButtonText: '确定',
         });
       },
-      //审批通过
-      handlePass(row) {
-        if (!row.step) {
-          this.open();
-          return
-        }
-        let params = {userId: row.userId, userName: row.userName}
+      //弹窗
+      confrimPassExam(){
+        let disableNum=this.disableNum.numId;
+        let params = {userId: this.examPassParams.userId, userName: this.examPassParams.userName,disableNum:disableNum}
+        this.dialogPassVisible=false;
         this.$api.post('/sign_technology/examPass', params, response => {
           if (response.status >= 0 && response.status < 300) {
             //数据回显
@@ -285,9 +295,45 @@
             alert("审核失败")
           }
         })
+      },
+      //审批通过
+      // handlePass(row) {
+      //   if (!row.step) {
+      //     this.open();
+      //     return
+      //   }
+      //   let params = {userId: row.userId, userName: row.userName}
+      //   this.$api.post('/sign_technology/examPass', params, response => {
+      //     if (response.status >= 0 && response.status < 300) {
+      //       //数据回显
+      //       let parms = {name: this.formInline.name, userType: this.formInline.userType, exam: this.formInline.exam}
+      //       this.$api.get('/sign_technology/examAuthInfo', parms, response => {
+      //         if (response.status >= 0 && response.status < 300) {
+      //           console.log(response.data.data);//请求成功，response为成功信息参数
+      //           this.examAuthList = response.data.data.data;
+      //           this.pagesize = response.data.data.pageSize;
+      //           this.total = response.data.data.totalCount;
+      //         } else {
+      //           console.log(response.message);//请求失败，response为失败信息
+      //         }
+      //       });
+      //     } else {
+      //       alert("审核失败")
+      //     }
+      //   })
+      //
+      // }
+      handlePass(row) {
+        if (!row.step) {
+          this.open();
+          return
+        }
+        this.dialogPassVisible=true;
+        this.examPassParams.userId=row.userId;
+        this.examPassParams.userName=row.userName;
 
       }
-      ,
+    ,
       //审批不通过
       handleDelete(params) {
         if (!params.step) {
@@ -329,6 +375,9 @@
       ,
       cancelExam() {
         this.dialogFormVisible = false;
+      },
+      cancelPassExam() {
+        this.dialogPassVisible = false;
       }
     },
 
@@ -351,14 +400,23 @@
         pciList: [],
         //弹窗
         dialogFormVisible: false,
+        dialogPassVisible: false,
         failRea: {
           reaValue: '',
         },
+        disableNum: {
+          numId:''
+        },
         formLabelWidth: '120px',
+        formLabelWidthPass: '150px',
         examNoPassParams: {
           userId: '',
           disableUrl: ''
-
+        },
+        //审核通过参数
+        examPassParams:{
+          userId:'',
+          userName:''
         }
       }
     }
