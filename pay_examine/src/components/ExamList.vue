@@ -140,7 +140,7 @@
                   type="danger"
                   @click="handleDelete(scope.row)">不通过
                 </el-button>
-                <el-button @click="handleDrawerOpen(scope.row.userId)" type="primary" style="margin-left: 16px;">
+                <el-button @click="handleDrawerOpen(scope.row)" type="primary" style="margin-left: 16px;">
                   查看
                 </el-button>
               </template>
@@ -265,7 +265,13 @@
       },
       //抽屉
       handleDrawerOpen(param) {
-        this.$api.get('/sign_technology/getCertifPic', {userId: param}, response => {
+        let userId=param.userId;
+        console.log(param)
+        if(param.step==='1'){
+          this.imgTips();
+          return;
+        }
+        this.$api.get('/sign_technology/getCertifPic', {userId: userId}, response => {
           if (response.status >= 0 && response.status < 300) {
             console.log(response.data.data);//请求成功，response为成功信息参数
             this.pciList = response.data.data;
@@ -284,6 +290,11 @@
           confirmButtonText: '确定',
         });
       },
+      imgTips() {
+        this.$alert('用户暂未提交证件照  不可查看', '消息提示', {
+          confirmButtonText: '确定',
+        });
+      },
       //提示弹窗
       open1() {
         this.$alert('暂无用户数据', '消息提示', {
@@ -292,6 +303,10 @@
       },
       //弹窗
       confrimPassExam(){
+        if(!this.disableNum.numId){
+          alert("残疾证号码不能为空")
+          return;
+        }
         let disableNum=this.disableNum.numId;
         let params = {userId: this.examPassParams.userId, userName: this.examPassParams.userName,disableNum:disableNum}
         this.dialogPassVisible=false;
@@ -364,6 +379,10 @@
       }
       ,
       confrimNoPassExam() {
+        if(!this.failRea.reaValue){
+          alert("请输入审核理由")
+          return;
+        }
         let reaValue = this.failRea.reaValue;
         let paramsDel = {
           userId: this.examNoPassParams.userId,
