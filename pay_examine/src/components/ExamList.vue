@@ -37,8 +37,26 @@
                 <el-option label="" value=""></el-option>
                 <el-option label="通过" value="0"></el-option>
                 <el-option label="未通过" value="2"></el-option>
-<!--                <el-option label="审核中" value="1"></el-option>-->
+                <el-option label="审核中" value="1"></el-option>
               </el-select>
+            </el-form-item>
+            <el-form-item label="按月审批">
+<!--              <el-select v-model="formInline.dateTime" placeholder="时间查询">-->
+<!--                <el-option label="" value=""></el-option>-->
+<!--                <el-option label="通过" value="0"></el-option>-->
+<!--                <el-option label="未通过" value="2"></el-option>-->
+<!--                <el-option label="审核中" value="1"></el-option>-->
+<!--              </el-select>-->
+              <div class="container">
+                <div class="block">
+<!--                  <span class="demonstration">月</span>-->
+                  <el-date-picker
+                    v-model="formInline.month"
+                    type="month"
+                    placeholder="选择月">
+                  </el-date-picker>
+                </div>
+              </div>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="searchUsers">查询</el-button>
@@ -388,7 +406,8 @@
         formInline: {
           name: '',
           userType: '',
-          exam: ''
+          exam: '',
+          month:''
         },
         //抽屉默认隐藏
         drawer: false,
