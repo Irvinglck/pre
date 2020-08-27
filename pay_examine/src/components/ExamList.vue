@@ -3,21 +3,21 @@
     <el-header style="width: 100%; background-color: #20A0FF"></el-header>
     <el-container>
       <!--<el-aside width="200px" style="background-color: rgb(238, 241, 246)">-->
-        <!--<el-menu>-->
-          <!--<el-menu-item index="2">-->
-            <!--<i class="el-icon-menu"></i>-->
-            <!--<span slot="title">用户实名审核</span>-->
-          <!--</el-menu-item>-->
-          <!--<el-menu-item index="3">-->
-            <!--&lt;!&ndash;          <el-menu-item index="3" disabled>&ndash;&gt;-->
-            <!--<i class="el-icon-document"></i>-->
-            <!--<span slot="title">保留导航</span>-->
-          <!--</el-menu-item>-->
-          <!--<el-menu-item index="4">-->
-            <!--<i class="el-icon-setting"></i>-->
-            <!--<span slot="title">保留导航</span>-->
-          <!--</el-menu-item>-->
-        <!--</el-menu>-->
+      <!--<el-menu>-->
+      <!--<el-menu-item index="2">-->
+      <!--<i class="el-icon-menu"></i>-->
+      <!--<span slot="title">用户实名审核</span>-->
+      <!--</el-menu-item>-->
+      <!--<el-menu-item index="3">-->
+      <!--&lt;!&ndash;          <el-menu-item index="3" disabled>&ndash;&gt;-->
+      <!--<i class="el-icon-document"></i>-->
+      <!--<span slot="title">保留导航</span>-->
+      <!--</el-menu-item>-->
+      <!--<el-menu-item index="4">-->
+      <!--<i class="el-icon-setting"></i>-->
+      <!--<span slot="title">保留导航</span>-->
+      <!--</el-menu-item>-->
+      <!--</el-menu>-->
       <!--</el-aside>-->
       <el-container>
         <el-main class="main-add">
@@ -41,15 +41,9 @@
               </el-select>
             </el-form-item>
             <el-form-item label="按月审批">
-<!--              <el-select v-model="formInline.dateTime" placeholder="时间查询">-->
-<!--                <el-option label="" value=""></el-option>-->
-<!--                <el-option label="通过" value="0"></el-option>-->
-<!--                <el-option label="未通过" value="2"></el-option>-->
-<!--                <el-option label="审核中" value="1"></el-option>-->
-<!--              </el-select>-->
               <div class="container">
                 <div class="block">
-<!--                  <span class="demonstration">月</span>-->
+                  <!--                  <span class="demonstration">月</span>-->
                   <el-date-picker
                     v-model="formInline.month"
                     type="month"
@@ -205,111 +199,166 @@
 
 <script>
   export default {
-    name: "ExamList",
-    mounted() {
+    name: 'ExamList',
+    mounted () {
       let parms = {name: this.formInline.name, userType: this.formInline.userType, exam: this.formInline.exam}
       this.$api.get('/sign_technology/examAuthInfo', parms, response => {
         if (response.status >= 0 && response.status < 300) {
-          console.log(response.data.data);//请求成功，response为成功信息参数
-          this.examAuthList = response.data.data.data;
-          this.pagesize = response.data.data.pageSize;
-          this.total = response.data.data.totalCount;
+          console.log(response.data.data)//请求成功，response为成功信息参数
+          this.examAuthList = response.data.data.data
+          this.pagesize = response.data.data.pageSize
+          this.total = response.data.data.totalCount
         } else {
-          console.log(response.message);//请求失败，response为失败信息
+          console.log(response.message)//请求失败，response为失败信息
         }
-      });
+      })
 
     },
     methods: {
-      tableRowClassName({row, rowIndex}) {
+      tableRowClassName ({row, rowIndex}) {
         if (rowIndex % 2 === 0) {
-          return 'warning-row';
+          return 'warning-row'
         } else {
-          return 'success-row';
+          return 'success-row'
         }
       },
-      searchUsers() {
-        console.log(this.formInline.user, this.formInline.region);
+      dateFormat (fmt, date) {
+        let ret
+        const opt = {
+          'Y+': date.getFullYear().toString(),        // 年
+          'm+': (date.getMonth() + 1).toString(),     // 月
+          'd+': date.getDate().toString(),            // 日
+          'H+': date.getHours().toString(),           // 时
+          'M+': date.getMinutes().toString(),         // 分
+          'S+': date.getSeconds().toString()          // 秒
+          // 有其他格式化字符需求可以继续添加，必须转化成字符串
+        }
+        for (let k in opt) {
+          ret = new RegExp('(' + k + ')').exec(fmt)
+          if (ret) {
+            fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, '0')))
+          }
+
+        }
+
+        return fmt
+      },
+      searchUsers () {
+
+        // let format = this.convertDateStr(this.formInline.month).format('yyyy-MM-dd')
+        let dateFormat1 = this.dateFormat("YYYY-mm",this.formInline.month)
+        alert(dateFormat1)
+        console.log(this.formInline.name, this.formInline.userType, this.formInline.exam, this.formInline.month)
         let parms = {name: this.formInline.name, userType: this.formInline.userType, exam: this.formInline.exam}
         this.$api.get('/sign_technology/examAuthInfo', parms, response => {
           if (response.status >= 0 && response.status < 300) {
-            console.log(response.data.data);//请求成功，response为成功信息参数
-            this.examAuthList = response.data.data.data;
+            console.log(response.data.data)//请求成功，response为成功信息参数
+            this.examAuthList = response.data.data.data
           } else {
-            this.open1();
-            console.log(response.message);//请求失败，response为失败信息
+            this.open1()
+            console.log(response.message)//请求失败，response为失败信息
           }
-        });
+        })
       },
       //  分页
-      handleSizeChange(val) {
-        console.log(`每页size------ ${val} 条`);
+      handleSizeChange (val) {
+        console.log(`每页size------ ${val} 条`)
       },
-      handleCurrentChange(val) {
+      handleCurrentChange (val) {
         let params = {
           name: this.formInline.name,
           userType: this.formInline.userType,
           exam: this.formInline.exam,
           pageNum: val,
           pageSize: 5
-        };
-        console.log(`当前页 前后: ${JSON.stringify(params)}`);
+        }
+        console.log(`当前页 前后: ${JSON.stringify(params)}`)
         this.$api.get('/sign_technology/examAuthInfo', params, response => {
           if (response.status >= 0 && response.status < 300) {
-            console.log(response.data.data);//请求成功，response为成功信息参数
-            this.examAuthList = response.data.data.data;
+            console.log(response.data.data)//请求成功，response为成功信息参数
+            this.examAuthList = response.data.data.data
           } else {
-            console.log(response.message);//请求失败，response为失败信息
+            console.log(response.message)//请求失败，response为失败信息
           }
-        });
+        })
       },
       //抽屉
-      handleDrawerOpen(param) {
-        let userId=param.userId;
+      handleDrawerOpen (param) {
+        let userId = param.userId
         console.log(param)
-        if(param.step==='1'){
-          this.imgTips();
-          return;
+        if (param.step === '1') {
+          this.imgTips()
+          return
         }
         this.$api.get('/sign_technology/getCertifPic', {userId: userId}, response => {
           if (response.status >= 0 && response.status < 300) {
-            console.log(response.data.data);//请求成功，response为成功信息参数
-            this.pciList = response.data.data;
+            console.log(response.data.data)//请求成功，response为成功信息参数
+            this.pciList = response.data.data
           } else {
-            console.log(response.message);//请求失败，response为失败信息
+            console.log(response.message)//请求失败，response为失败信息
           }
         })
-        this.drawer = true;
+        this.drawer = true
       },
-      handleDrawerClose(done) {
+      handleDrawerClose (done) {
         done()
       },
       //提示弹窗
-      open() {
+      open () {
         this.$alert('用户暂未提交审核  不可审核', '消息提示', {
           confirmButtonText: '确定',
-        });
+        })
       },
-      imgTips() {
+      imgTips () {
         this.$alert('用户暂未提交证件照  不可查看', '消息提示', {
           confirmButtonText: '确定',
-        });
+        })
       },
       //提示弹窗
-      open1() {
+      open1 () {
         this.$alert('暂无用户数据', '消息提示', {
           confirmButtonText: '确定',
-        });
+        })
       },
       //弹窗
-      confrimPassExam(){
-        if(!this.disableNum.numId){
-          alert("残疾证号码不能为空")
-          return;
+      confrimPassExam () {
+        if (!this.disableNum.numId) {
+          alert('残疾证号码不能为空')
+          return
         }
-        let disableNum=this.disableNum.numId;
-        let params = {userId: this.examPassParams.userId, userName: this.examPassParams.userName,disableNum:disableNum}
-        this.dialogPassVisible=false;
+        let disableNum = this.disableNum.numId
+        let params = {
+          userId: this.examPassParams.userId,
+          userName: this.examPassParams.userName,
+          disableNum: disableNum
+        }
+        this.dialogPassVisible = false
+        this.$api.post('/sign_technology/examPass', params, response => {
+          if (response.status >= 0 && response.status < 300) {
+            //数据回显
+            let parms = {name: this.formInline.name, userType: this.formInline.userType, exam: this.formInline.exam}
+            this.$api.get('/sign_technology/examAuthInfo', parms, response => {
+              if (response.status >= 0 && response.status < 300) {
+                console.log(response.data.data)//请求成功，response为成功信息参数
+                this.examAuthList = response.data.data.data
+                this.pagesize = response.data.data.pageSize
+                this.total = response.data.data.totalCount
+              } else {
+                console.log(response.message)//请求失败，response为失败信息
+              }
+            })
+          } else {
+            alert('审核失败')
+          }
+        })
+      },
+      //审批通过
+      volunteer(row) {
+        if (!row.step) {
+          this.open();
+          return
+        }
+        let params = {userId: row.userId, userName: row.userName}
         this.$api.post('/sign_technology/examPass', params, response => {
           if (response.status >= 0 && response.status < 300) {
             //数据回显
@@ -328,97 +377,77 @@
             alert("审核失败")
           }
         })
+
       },
-      //审批通过
-      // handlePass(row) {
-      //   if (!row.step) {
-      //     this.open();
-      //     return
-      //   }
-      //   let params = {userId: row.userId, userName: row.userName}
-      //   this.$api.post('/sign_technology/examPass', params, response => {
-      //     if (response.status >= 0 && response.status < 300) {
-      //       //数据回显
-      //       let parms = {name: this.formInline.name, userType: this.formInline.userType, exam: this.formInline.exam}
-      //       this.$api.get('/sign_technology/examAuthInfo', parms, response => {
-      //         if (response.status >= 0 && response.status < 300) {
-      //           console.log(response.data.data);//请求成功，response为成功信息参数
-      //           this.examAuthList = response.data.data.data;
-      //           this.pagesize = response.data.data.pageSize;
-      //           this.total = response.data.data.totalCount;
-      //         } else {
-      //           console.log(response.message);//请求失败，response为失败信息
-      //         }
-      //       });
-      //     } else {
-      //       alert("审核失败")
-      //     }
-      //   })
-      //
-      // }
-      handlePass(row) {
+      handlePass (row) {
+        console.log(row)
         if (!row.step) {
-          this.open();
+          this.open()
           return
         }
-        this.dialogPassVisible=true;
-        this.examPassParams.userId=row.userId;
-        this.examPassParams.userName=row.userName;
+        if(row.roleDes!=='1'){
+          this.volunteer(row);
+          return
+
+        }
+        this.dialogPassVisible = true
+        this.examPassParams.userId = row.userId
+        this.examPassParams.userName = row.userName
 
       }
-    ,
+      ,
       //审批不通过
-      handleDelete(params) {
+      handleDelete (params) {
         if (!params.step) {
-          this.open();
+          this.open()
           return
         }
-        this.dialogFormVisible = true;
-        this.examNoPassParams.userId = params.userId;
-        this.examNoPassParams.disableUrl = params.disableUrl;
+        this.dialogFormVisible = true
+        this.examNoPassParams.userId = params.userId
+        this.examNoPassParams.disableUrl = params.disableUrl
       }
       ,
-      confrimNoPassExam() {
-        if(!this.failRea.reaValue){
-          alert("请输入审核理由")
-          return;
+      confrimNoPassExam () {
+        if (!this.failRea.reaValue) {
+          alert('请输入审核理由')
+          return
         }
-        let reaValue = this.failRea.reaValue;
+        let reaValue = this.failRea.reaValue
         let paramsDel = {
           userId: this.examNoPassParams.userId,
           disableUrl: this.examNoPassParams.disableUrl,
           deleteDes: reaValue
         }
-        this.dialogFormVisible = false;
+        this.dialogFormVisible = false
         this.$api.post('/sign_technology/examNOPass', paramsDel, response => {
           if (response.status >= 0 && response.status < 300) {
             //数据回显
             let parms = {name: this.formInline.name, userType: this.formInline.userType, exam: this.formInline.exam}
             this.$api.get('/sign_technology/examAuthInfo', parms, response => {
               if (response.status >= 0 && response.status < 300) {
-                console.log(response.data.data);//请求成功，response为成功信息参数
-                this.examAuthList = response.data.data.data;
-                this.pagesize = response.data.data.pageSize;
-                this.total = response.data.data.totalCount;
+                console.log(response.data.data)//请求成功，response为成功信息参数
+                this.examAuthList = response.data.data.data
+                this.pagesize = response.data.data.pageSize
+                this.total = response.data.data.totalCount
               } else {
-                console.log(response.message);//请求失败，response为失败信息
+                console.log(response.message)//请求失败，response为失败信息
               }
-            });
+            })
           } else {
-            alert("审核失败")
+            alert('审核失败')
           }
         })
       }
       ,
-      cancelExam() {
-        this.dialogFormVisible = false;
+      cancelExam () {
+        this.dialogFormVisible = false
       },
-      cancelPassExam() {
-        this.dialogPassVisible = false;
+      cancelPassExam () {
+        this.dialogPassVisible = false
       }
     },
 
-    data() {
+    data () {
       return {
         examAuthList: [],
         //搜索
@@ -426,7 +455,7 @@
           name: '',
           userType: '',
           exam: '',
-          month:''
+          month: ''
         },
         //抽屉默认隐藏
         drawer: false,
@@ -443,7 +472,7 @@
           reaValue: '',
         },
         disableNum: {
-          numId:''
+          numId: ''
         },
         formLabelWidth: '120px',
         formLabelWidthPass: '150px',
@@ -452,9 +481,9 @@
           disableUrl: ''
         },
         //审核通过参数
-        examPassParams:{
-          userId:'',
-          userName:''
+        examPassParams: {
+          userId: '',
+          userName: ''
         }
       }
     }
