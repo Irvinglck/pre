@@ -106,6 +106,11 @@
               label="认证手机">
             </el-table-column>
             <el-table-column
+              width="155"
+              prop="createTm"
+              label="注册时间">
+            </el-table-column>
+            <el-table-column
               size="mini"
               prop="step"
               label="认证进度">
@@ -149,9 +154,9 @@
             :with-header="false">
             <div class="warp-drawer">
               <p class="content" style="height: 20px">证件照片</p>
-              <img width="420px" v-for="(item,index) in pciList"
+<!--              <p class="apply-des"  >做公益做公益做公益做公益做公益做公益做公益做公益做公益做公益做公益做公益做公益做公益做公益</p>-->
+              <img height="320px" v-for="(item,index) in pciList"
                    :src="'https://oss-jz.oss-cn-beijing.aliyuncs.com/'+item" :key="index" v-if="pciList">
-              <p v-else>lck</p>
             </div>
           </el-drawer>
           <!--审核不通过弹窗-->
@@ -192,7 +197,7 @@
       let parms = {name: this.formInline.name, userType: this.formInline.userType, exam: this.formInline.exam}
       this.$api.get('/sign_technology/examAuthInfo', parms, response => {
         if (response.status >= 0 && response.status < 300) {
-          console.log(response.data.data)//请求成功，response为成功信息参数
+          // console.log(response.data.data)//请求成功，response为成功信息参数
           this.examAuthList = response.data.data.data
           this.pagesize = response.data.data.pageSize
           this.total = response.data.data.totalCount
@@ -211,15 +216,16 @@
         }
       },
       searchUsers () {
-
         let parms = {name: this.formInline.name, userType: this.formInline.userType, exam: this.formInline.exam}
         this.$api.get('/sign_technology/examAuthInfo', parms, response => {
           if (response.status >= 0 && response.status < 300) {
-            console.log(response.data.data)//请求成功，response为成功信息参数
+            // console.log(response.data.data)//请求成功，response为成功信息参数
             this.examAuthList = response.data.data.data
+            this.pagesize = response.data.data.pageSize
+            this.total = response.data.data.totalCount
           } else {
             this.open1()
-            console.log(response.message)//请求失败，response为失败信息
+            // console.log(response.message)//请求失败，response为失败信息
           }
         })
       },
@@ -233,7 +239,7 @@
           userType: this.formInline.userType,
           exam: this.formInline.exam,
           pageNum: val,
-          pageSize: 5
+          pageSize: 20
         }
         console.log(`当前页 前后: ${JSON.stringify(params)}`)
         this.$api.get('/sign_technology/examAuthInfo', params, response => {
@@ -249,7 +255,7 @@
       handleDrawerOpen (param) {
         let userId = param.userId
         console.log(param)
-        if (param.step === '1') {
+        if (param.step === '1'||!param.step) {
           this.imgTips()
           return
         }
@@ -479,6 +485,15 @@
 
   .sl-form {
     padding-top: 20px;
+  }
+
+  .apply-des {
+    color: red;
+    font-size: 16px;
+    text-align: left;
+    margin-left: 10px;
+    margin-bottom: 20px;
+    width: 100%;
   }
 
   .warp-drawer .content {
