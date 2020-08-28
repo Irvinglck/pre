@@ -29,7 +29,7 @@
               <el-select v-model="formInline.userType" placeholder="用户类型">
                 <el-option label="" value=""></el-option>
                 <el-option label="残障用户" value="1"></el-option>
-                <el-option label="普通用户" value="0"></el-option>
+                <el-option label="志愿者"   value="2"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="审核进度">
@@ -39,18 +39,6 @@
                 <el-option label="未通过" value="2"></el-option>
                 <el-option label="审核中" value="1"></el-option>
               </el-select>
-            </el-form-item>
-            <el-form-item label="按月审批">
-              <div class="container">
-                <div class="block">
-                  <!--                  <span class="demonstration">月</span>-->
-                  <el-date-picker
-                    v-model="formInline.month"
-                    type="month"
-                    placeholder="选择月">
-                  </el-date-picker>
-                </div>
-              </div>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="searchUsers">查询</el-button>
@@ -95,7 +83,7 @@
               label="用户类型">
               width="80">
               <template slot-scope="scope">
-                <span v-if="scope.row.roleDes === 2">志愿者</span>
+                <span v-if="scope.row.roleDes === '2'" style="color: red">志愿者</span>
                 <span v-else>残疾人</span>
               </template>
             </el-table-column>
@@ -222,33 +210,8 @@
           return 'success-row'
         }
       },
-      dateFormat (fmt, date) {
-        let ret
-        const opt = {
-          'Y+': date.getFullYear().toString(),        // 年
-          'm+': (date.getMonth() + 1).toString(),     // 月
-          'd+': date.getDate().toString(),            // 日
-          'H+': date.getHours().toString(),           // 时
-          'M+': date.getMinutes().toString(),         // 分
-          'S+': date.getSeconds().toString()          // 秒
-          // 有其他格式化字符需求可以继续添加，必须转化成字符串
-        }
-        for (let k in opt) {
-          ret = new RegExp('(' + k + ')').exec(fmt)
-          if (ret) {
-            fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, '0')))
-          }
-
-        }
-
-        return fmt
-      },
       searchUsers () {
 
-        // let format = this.convertDateStr(this.formInline.month).format('yyyy-MM-dd')
-        let dateFormat1 = this.dateFormat("YYYY-mm",this.formInline.month)
-        alert(dateFormat1)
-        console.log(this.formInline.name, this.formInline.userType, this.formInline.exam, this.formInline.month)
         let parms = {name: this.formInline.name, userType: this.formInline.userType, exam: this.formInline.exam}
         this.$api.get('/sign_technology/examAuthInfo', parms, response => {
           if (response.status >= 0 && response.status < 300) {
@@ -461,7 +424,7 @@
         drawer: false,
         //分页
         currentPage3: 1,//当前页
-        pageSize: 5,//每页条数
+        pageSize: 20,//每页条数
         total: 0,//总记录数
         //图片地址
         pciList: [],

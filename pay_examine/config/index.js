@@ -14,7 +14,8 @@ module.exports = {
     proxyTable: {
       '/api': {
         // target: 'http://localhost:8888', // 你请求的第三方接口
-        target: 'http://test.hanwin.com.cn:8888',
+        // target: 'http://test.hanwin.com.cn:9123',
+        target: 'http://jz.hanwin.com.cn:8888',
         changeOrigin: true,
         pathRewrite: {  // 路径重写，
           '^/api': '/'  // 替换target中的请求地址，也就是说以后你在请求http://api.douban.com/v2/XXXXX这个地址的时候直接写成/api即可。
@@ -60,7 +61,8 @@ module.exports = {
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
+    //打包到服务器
+    assetsPublicPath: './',
 
     /**
      * Source Maps
