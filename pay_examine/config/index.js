@@ -13,8 +13,8 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/api': {
-        // target: 'http://localhost:8888', // 你请求的第三方接口
-        target: 'http://test.hanwin.com.cn:9123',
+        target: 'http://localhost:9123', // 你请求的第三方接口
+        // target: 'http://test.hanwin.com.cn:9123',
         // target: 'http://jz.hanwin.com.cn:8888',
         changeOrigin: true,
         pathRewrite: {  // 路径重写，

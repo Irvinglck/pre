@@ -29,7 +29,7 @@
               <el-select v-model="formInline.userType" placeholder="用户类型">
                 <el-option label="" value=""></el-option>
                 <el-option label="残障用户" value="1"></el-option>
-                <el-option label="志愿者"   value="2"></el-option>
+                <el-option label="志愿者" value="2"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="审核进度">
@@ -154,7 +154,7 @@
             :with-header="false">
             <div class="warp-drawer">
               <p class="content" style="height: 20px">证件照片</p>
-<!--              <p class="apply-des"  >做公益做公益做公益做公益做公益做公益做公益做公益做公益做公益做公益做公益做公益做公益做公益</p>-->
+              <p class="apply-des" v-show="rea"><span class="rea">申请理由:</span>{{rea}}</p>
               <img height="320px" v-for="(item,index) in pciList"
                    :src="'https://oss-jz.oss-cn-beijing.aliyuncs.com/'+item" :key="index" v-if="pciList">
             </div>
@@ -254,15 +254,16 @@
       //抽屉
       handleDrawerOpen (param) {
         let userId = param.userId
-        console.log(param)
-        if (param.step === '1'||!param.step) {
+        // console.log(param)
+        if (param.step === '1' || !param.step || param.step === '0') {
           this.imgTips()
           return
         }
-        this.$api.get('/sign_technology/getCertifPic', {userId: userId}, response => {
+        this.$api.get('/sign_technology/v2/getCertifPic', {userId: userId}, response => {
           if (response.status >= 0 && response.status < 300) {
             console.log(response.data.data)//请求成功，response为成功信息参数
-            this.pciList = response.data.data
+            this.pciList = response.data.data.urls;
+            this.rea=response.data.data.rea;
           } else {
             console.log(response.message)//请求失败，response为失败信息
           }
@@ -322,9 +323,9 @@
         })
       },
       //审批通过
-      volunteer(row) {
+      volunteer (row) {
         if (!row.step) {
-          this.open();
+          this.open()
           return
         }
         let params = {userId: row.userId, userName: row.userName}
@@ -334,16 +335,16 @@
             let parms = {name: this.formInline.name, userType: this.formInline.userType, exam: this.formInline.exam}
             this.$api.get('/sign_technology/examAuthInfo', parms, response => {
               if (response.status >= 0 && response.status < 300) {
-                console.log(response.data.data);//请求成功，response为成功信息参数
-                this.examAuthList = response.data.data.data;
-                this.pagesize = response.data.data.pageSize;
-                this.total = response.data.data.totalCount;
+                console.log(response.data.data)//请求成功，response为成功信息参数
+                this.examAuthList = response.data.data.data
+                this.pagesize = response.data.data.pageSize
+                this.total = response.data.data.totalCount
               } else {
-                console.log(response.message);//请求失败，response为失败信息
+                console.log(response.message)//请求失败，response为失败信息
               }
-            });
+            })
           } else {
-            alert("审核失败")
+            alert('审核失败')
           }
         })
 
@@ -354,8 +355,8 @@
           this.open()
           return
         }
-        if(row.roleDes!=='1'){
-          this.volunteer(row);
+        if (row.roleDes !== '1') {
+          this.volunteer(row)
           return
 
         }
@@ -434,6 +435,8 @@
         total: 0,//总记录数
         //图片地址
         pciList: [],
+        //申请理由
+        rea:'',
         //弹窗
         dialogFormVisible: false,
         dialogPassVisible: false,
@@ -504,5 +507,10 @@
 
   .el-drawer {
     overflow-y: scroll;
+  }
+  .rea {
+    font-size: 16px;
+    font-weight: 400;
+    color: black;
   }
 </style>
